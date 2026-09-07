@@ -1,0 +1,65 @@
+= Media and Output Lineage
+
+The Media Catalog is the system of record for processed-media metadata, draft composition, render history, and provenance. Binary originals, previews, final MP4 files, and thumbnails remain in Media Object Storage; catalog records retain their storage references.
+
+[mermaid]
+----
+erDiagram
+    MEDIA_ASSET ||--o{ PROCESSED_SCENE : contains
+    MEDIA_ASSET ||--o{ DRAFT_ITEM : supplies
+    PROCESSED_SCENE o|--o{ DRAFT_ITEM : selects
+    DRAFT ||--|{ DRAFT_VERSION : versions
+    DRAFT_VERSION ||--|{ DRAFT_ITEM : orders
+    DRAFT_VERSION ||--o{ RENDERED_OUTPUT : produces
+
+    MEDIA_ASSET {
+        uuid id PK
+        string media_type
+        string original_uri
+        string checksum
+        datetime imported_at
+    }
+    PROCESSED_SCENE {
+        uuid id PK
+        uuid source_asset_id FK
+        duration source_start
+        duration source_end
+        string analysis_version
+    }
+    DRAFT {
+        uuid id PK
+        string title
+        datetime created_at
+    }
+    DRAFT_VERSION {
+        uuid id PK
+        uuid draft_id FK
+        int version
+        string approval_state
+        datetime created_at
+    }
+    DRAFT_ITEM {
+        uuid id PK
+        uuid draft_version_id FK
+        uuid source_asset_id FK
+        uuid scene_id FK
+        int position
+        duration source_start
+        duration source_end
+        json transformations
+    }
+    RENDERED_OUTPUT {
+        uuid id PK
+        uuid draft_version_id FK
+        string video_uri
+        string thumbnail_uri
+        string render_status
+        datetime created_at
+    }
+----
+
+`DRAFT_ITEM.scene_id` is optional so a draft can directly reference a photo, audio asset, or manually selected source range. The item preserves ordering, source time ranges, cropping, speed, captions, and other transformations needed to reproduce or explain a render. A rendered output always references the immutable, approved `DRAFT_VERSION` used to create it; later edits create another version rather than changing its history.
+
+== Creator experience
+
+The Creator Portal provides a *Finished Videos* list and output-detail view. For each render, the detail view shows status, creation time, draft version, MP4 and thumbnail links, and the ordered source assets with their selected time ranges and transformations. From a source asset, the creator can also view every draft and finished video that reused it.

@@ -1,0 +1,10 @@
+* Diagrams
+** C4
+*** xref:diagrams/c4/system-context.adoc[System context]
+*** xref:diagrams/c4/container.adoc[Containers]
+*** xref:diagrams/c4/component.adoc[Components]
+*** xref:diagrams/c4/deployment.adoc[Production deployment]
+** Data
+*** xref:diagrams/data/media-lineage.adoc[Media and output lineage]
+** Sequence
+*** xref:diagrams/sequence/shorts-system-sequences.adoc[System sequences]

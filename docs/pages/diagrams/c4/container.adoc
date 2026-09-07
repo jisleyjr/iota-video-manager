@@ -1,0 +1,17 @@
+= Container
+
+[structurizr]
+....
+workspace "Iota Video Manager" "Container view" {
+
+include::{docdir}/../../../partials/diagrams/c4/model.dsl[]
+
+    views {
+        container iotaVideos "containers" {
+            include *
+            autoLayout lr
+        }
+include::{docdir}/../../../partials/diagrams/c4/styles.dsl[]
+    }
+}
+....

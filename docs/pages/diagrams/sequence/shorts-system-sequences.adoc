@@ -1,0 +1,106 @@
+= YouTube Shorts and Reels System — Sequence Diagrams
+
+These sequences describe the initial system behavior:
+
+* Media arrives through watched folders and browser uploads.
+* The system generates complete short-form drafts for creator approval.
+* Approved videos are downloaded and manually uploaded to social platforms.
+* Direct publishing integrations are a future enhancement.
+
+== Media ingestion, analysis, and cataloging
+
+[mermaid]
+----
+sequenceDiagram
+    autonumber
+    actor Creator
+    participant Folder as Watched Folder Service
+    participant Upload as Upload App
+    participant Library as Media Library
+    participant AI as GPU Media Intelligence
+    participant Catalog as Searchable Catalog
+
+    alt New file in mounted drive/folder
+        Folder->>Library: Detect and register video/photo
+    else Creator uploads through browser
+        Creator->>Upload: Upload media
+        Upload->>Library: Store original and metadata
+    end
+
+    Library->>AI: Queue media analysis
+    AI->>AI: Extract video frames, audio, motion, and scenes
+    AI->>AI: Detect action moments, people, vehicles, terrain, and quality
+    AI->>AI: Identify photo subjects, setting, and visual matches
+    AI->>Catalog: Save clips, timestamps, tags, embeddings, and linked photos
+    Catalog-->>Creator: Media becomes searchable and ready for ideas
+----
+
+== Short idea and creator approval
+
+[mermaid]
+----
+sequenceDiagram
+    autonumber
+    actor Creator
+    participant Studio as Shorts Idea App
+    participant Catalog as Media Catalog
+    participant AI as GPU Creative Service
+
+    Creator->>Studio: Request ideas or choose an adventure/theme
+    Studio->>Catalog: Find strong action clips and related photos
+    Catalog-->>Studio: Ranked media, metadata, and prior-use history
+    Studio->>AI: Create short-form concepts
+
+    loop For each promising concept
+        AI->>AI: Select hook, action sequence, photos, captions, and pacing
+        AI->>AI: Generate title, description, hashtags, and music suggestion
+        AI->>Catalog: Save versioned draft and ordered source references
+    end
+
+    Catalog-->>Studio: Present drafts ranked by predicted quality
+    Studio-->>Creator: Show idea, storyboard, preview, and rationale
+
+    alt Creator approves
+        Creator->>Studio: Approve or request edits
+        Studio->>AI: Queue final render
+    else Creator rejects
+        Creator->>Studio: Reject with optional feedback
+        Studio->>AI: Learn preference for future recommendations
+    end
+----
+
+== Final rendering and manual publishing
+
+[mermaid]
+----
+sequenceDiagram
+    autonumber
+    actor Creator
+    participant Studio as Review App
+    participant Render as GPU Render Worker
+    participant Catalog as Media Catalog
+    participant Library as Media Library
+    participant Output as Finished Shorts Library
+
+    Studio->>Render: Render approved draft
+    Render->>Catalog: Load approved draft version and ordered source references
+    Catalog-->>Render: Asset IDs, scene time ranges, and transformations
+    Render->>Library: Retrieve original clips, photos, and audio
+    Render->>Render: Compose 9:16 video, captions, transitions, and soundtrack
+    Render->>Render: Validate duration, resolution, audio, and safe framing
+    Render->>Output: Store final MP4, thumbnail, and publishing metadata
+    Render->>Catalog: Record output, storage references, and render metadata
+    Catalog-->>Studio: Notify that final video is ready
+    Studio-->>Creator: Preview and download finished short
+
+    opt Creator inspects output sources
+        Creator->>Studio: Open finished-video details
+        Studio->>Catalog: Request output lineage
+        Catalog-->>Studio: Draft version, ordered assets, and source time ranges
+        Studio-->>Creator: Show contributing source media and transformations
+    end
+
+    Creator->>Creator: Upload manually to YouTube Shorts or Instagram Reels
+
+    Note over Output,Creator: Future integration: connect YouTube/Instagram accounts for direct publishing and scheduling.
+----

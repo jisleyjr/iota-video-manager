@@ -1,0 +1,17 @@
+= System Context
+
+[structurizr]
+....
+workspace "Iota Video Manager" "System context" {
+include::{docdir}/../../../partials/diagrams/c4/model.dsl[]
+
+    views {
+        systemContext iotaVideos "system-context" {
+            include *
+            autoLayout lr
+        }
+
+include::{docdir}/../../../partials/diagrams/c4/styles.dsl[]
+    }
+}
+....

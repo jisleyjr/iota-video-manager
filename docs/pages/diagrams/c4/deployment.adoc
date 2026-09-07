@@ -1,0 +1,18 @@
+= Production Deployment
+
+[structurizr]
+....
+workspace "Iota Video Manager" "Initial production deployment" {
+
+include::{docdir}/../../../partials/diagrams/c4/model.dsl[]
+
+    views {
+        deployment iotaVideos "Production" "production-deployment" {
+            include *
+            autoLayout lr
+        }
+
+include::{docdir}/../../../partials/diagrams/c4/styles.dsl[]
+    }
+}
+....

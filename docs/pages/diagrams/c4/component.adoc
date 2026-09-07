@@ -1,0 +1,19 @@
+= Components
+
+== Application API
+
+[structurizr]
+....
+workspace "Iota Video Manager" "Application API component view" {
+
+include::{docdir}/../../../partials/diagrams/c4/model.dsl[]
+
+    views {
+        component applicationApi "application-api-components" {
+            include *
+            autoLayout lr
+        }
+include::{docdir}/../../../partials/diagrams/c4/styles.dsl[]
+    }
+}
+....

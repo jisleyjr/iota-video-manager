@@ -1,0 +1,12 @@
+= Iota Videos
+
+Iota Videos is a self-hosted system that turns snowmobiling, off-roading, and snowboarding footage into creator-approved YouTube Shorts and Instagram Reels.
+
+== Diagrams
+
+* xref:diagrams/c4/system-context.adoc[System context]
+* xref:diagrams/c4/container.adoc[Containers]
+* xref:diagrams/c4/component.adoc[Components]
+* xref:diagrams/c4/deployment.adoc[Production deployment]
+* xref:diagrams/data/media-lineage.adoc[Media and output lineage]
+* xref:diagrams/sequence/shorts-system-sequences.adoc[System sequences]
