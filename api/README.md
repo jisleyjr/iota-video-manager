@@ -1,0 +1,1 @@
+The front-end application for displaying the information to the user. Based on NPM, React, Yarn.

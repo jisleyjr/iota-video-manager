@@ -1,0 +1,1 @@
+The api of the application, this will server up the data to the app. It is a Kotlin based Gradle backed application.
