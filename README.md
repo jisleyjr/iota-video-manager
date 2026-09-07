@@ -1,1 +1,1 @@
-# IOTA Videa Manager
+# IOTA Video Manager
