@@ -1,5 +1,7 @@
 = Production Deployment
 
+NOTE: This existing deployment view is incomplete: the shared model does not yet declare a `Production` deployment environment, nodes, or container instances. It does not establish a working deployment topology. Completing that model is a separate architecture task; YouTube synchronization runs inside the Application API.
+
 [structurizr]
 ....
 workspace "Iota Video Manager" "Initial production deployment" {

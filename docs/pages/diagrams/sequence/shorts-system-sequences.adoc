@@ -5,6 +5,7 @@ These sequences describe the initial system behavior:
 * Media arrives through watched folders and browser uploads.
 * The system generates complete short-form drafts for creator approval.
 * Approved videos are downloaded and manually uploaded to social platforms.
+* The Application API discovers public YouTube uploads and refreshes current statistics every six hours by default.
 * Direct publishing integrations are a future enhancement.
 
 == Media ingestion, analysis, and cataloging
@@ -103,4 +104,78 @@ sequenceDiagram
     Creator->>Creator: Upload manually to YouTube Shorts or Instagram Reels
 
     Note over Output,Creator: Future integration: connect YouTube/Instagram accounts for direct publishing and scheduling.
+----
+
+== Scheduled YouTube discovery and refresh
+
+See xref:api/youtube-monitoring.adoc[YouTube monitoring API] for the configuration, retention, and error handling.
+
+[mermaid]
+----
+sequenceDiagram
+    autonumber
+    participant Sync as API YouTube Synchronization
+    participant Client as API YouTube Client
+    participant YouTube as YouTube Data API v3
+    participant Catalog as Media Catalog
+
+    Note over Sync,Catalog: Initial startup and every six hours; skip if another run holds the synchronization lock
+    Sync->>Catalog: Acquire synchronization lock
+    Sync->>Client: Resolve configured channel uploads playlist
+    Client->>YouTube: channels.list(part=contentDetails, id=channelId)
+    YouTube-->>Client: Uploads playlist ID
+    Client-->>Sync: Uploads playlist ID
+    loop Every uploads playlist page
+        Sync->>Client: Fetch next page
+        Client->>YouTube: playlistItems.list(part=contentDetails, playlistId, pageToken)
+        YouTube-->>Client: Video IDs and nextPageToken
+        Client-->>Sync: Discovered video IDs and nextPageToken
+    end
+    Sync->>Catalog: Read stored video IDs for configured channel
+    Catalog-->>Sync: Previously imported IDs
+    Sync->>Sync: Deduplicate discovered and stored IDs
+    loop Batches of up to 50 video IDs
+        Sync->>Client: Fetch metadata, status, and current statistics
+        Client->>YouTube: videos.list(part=snippet,contentDetails,status,statistics, id=IDs)
+        alt Successful lookup
+            YouTube-->>Client: Returned video resources
+            Client-->>Sync: Returned videos and omitted IDs
+            Sync->>Catalog: Upsert eligible public videos and current counts
+            Sync->>Catalog: Mark existing omitted or ineligible videos unavailable
+            Note over Sync,Catalog: Preserve output associations; unavailable lookups do not advance last_synced_at
+        else Request failure
+            YouTube-->>Client: Error or timeout
+            Client->>Client: Bound transient retries; stop immediately on quota or configuration errors
+            Client-->>Sync: Failure after allowed attempts
+            Note over Sync,Catalog: Leave affected records unchanged and stop this run
+        end
+    end
+    Sync->>Catalog: Release synchronization lock even on failure
+    Note over Sync,Catalog: Independent hourly cleanup and startup cleanup delete records last synchronized at least 30 days ago
+----
+
+== Read monitored YouTube videos
+
+[mermaid]
+----
+sequenceDiagram
+    autonumber
+    actor Creator
+    participant Portal as Creator Portal
+    participant Queries as API YouTube Video Queries
+    participant Catalog as Media Catalog
+
+    Creator->>Portal: Open YouTube Videos
+    Portal->>Queries: GET /api/youtube/videos?page=0&size=25
+    Queries->>Catalog: Read configured channel's unexpired videos, newest first
+    Catalog-->>Queries: Page of videos and total count
+    Queries-->>Portal: Metadata, counts, availability, and refresh times
+    Portal-->>Creator: Show uploads and timestamped statistics
+    Creator->>Portal: Open a video's details
+    Portal->>Queries: GET /api/youtube/videos/{id}
+    Queries->>Catalog: Read unexpired video and optional output reference
+    Catalog-->>Queries: Video record or no match
+    Queries-->>Portal: Video details or 404
+    Portal-->>Creator: Show details and existing lineage link, or not found
+    Note over Portal,Catalog: Reads use stored records; no YouTube request is made
 ----

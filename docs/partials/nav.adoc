@@ -1,3 +1,5 @@
+* API
+** xref:api/youtube-monitoring.adoc[YouTube monitoring]
 * Diagrams
 ** C4
 *** xref:diagrams/c4/system-context.adoc[System context]
@@ -5,6 +7,6 @@
 *** xref:diagrams/c4/component.adoc[Components]
 *** xref:diagrams/c4/deployment.adoc[Production deployment]
 ** Data
-*** xref:diagrams/data/media-lineage.adoc[Media and output lineage]
+*** xref:diagrams/data/erd.adoc[Media, output lineage, and YouTube videos]
 ** Sequence
 *** xref:diagrams/sequence/shorts-system-sequences.adoc[System sequences]

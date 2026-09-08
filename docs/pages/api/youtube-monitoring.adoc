@@ -1,0 +1,69 @@
+= YouTube Monitoring API
+
+The Application API will discover one configured channel's public YouTube uploads and store their metadata and current view, like, and comment counts in the Media Catalog. All public video formats are included, including uploads created outside Iota.
+
+== Components and configuration
+
+The Kotlin Application API owns YouTube Video Queries, YouTube Synchronization, and the YouTube API Client. The synchronization task runs within the API, separate from the GPU processing workflow, and writes to PostgreSQL. Portal requests read stored data without waiting for YouTube.
+
+[cols="1,2",options="header"]
+|===
+|Configuration |Behavior
+|`YOUTUBE_API_KEY` |Required server-side secret for the enabled YouTube Data API v3; never returned to the portal or logged.
+|`YOUTUBE_CHANNEL_ID` |Required channel ID for the single monitored channel.
+|`YOUTUBE_SYNC_INTERVAL` |Positive duration, default `PT6H` (six hours).
+|===
+
+Missing configuration disables monitoring and reports a configuration error without blocking unrelated API workflows. The first configured startup schedules an initial sync; subsequent runs follow the interval. Permit only one active synchronization run, using a PostgreSQL advisory lock shared across API instances. Skip a scheduled run if the lock is held, and release the lock on completion or failure.
+
+OAuth, private-video access, manual video registration, direct publishing, historical observations, YouTube Analytics, and output-association editing are deferred. Uploading to YouTube and Instagram remains manual.
+
+== Discovery and refresh
+
+. Resolve the channel's uploads playlist with `channels.list(part=contentDetails,id=...)`.
+. Follow every `nextPageToken` from `playlistItems.list(part=contentDetails,playlistId=...,maxResults=50)`, collecting `contentDetails.videoId`. Do not use playlist item IDs as video IDs.
+. Combine discovered video IDs with previously stored IDs for the configured channel. Retrieve batches of up to 50 IDs with `videos.list(part=snippet,contentDetails,status,statistics,id=...)`. Do not send `maxResults` or `pageToken` with the video-ID filter.
+. For each returned video belonging to the configured channel with public privacy status, upsert the xref:diagrams/data/erd.adoc[`YOUTUBE_VIDEO` record] by `youtube_video_id`. Atomically replace its metadata and counts and set availability to `available`. Preserve its internal ID, initial creation time, and any explicit output association.
+. When a successful batch lookup omits an existing video, or returns a video that is no longer public or no longer matches the channel, mark it `unavailable`. Keep its previous metadata and counts with their original synchronization time until expiry. Do not infer whether the video was deleted or made private.
+
+Use the video resource's publication time and thumbnail URL; derive the watch URL from the video ID when serving responses. Missing optional fields and statistics remain null, and newly returned counts can decrease. Never retain an old count in place of an absent count after an otherwise successful refresh.
+
+The uploads playlist is the discovery mechanism, while explicit video lookups determine availability. A failed discovery page must not cause undiscovered videos to be marked unavailable. Successfully committed batches may remain if a later request fails; a subsequent run safely repeats discovery and upserts without duplicates.
+
+Sources: https://developers.google.com/youtube/v3/guides/implementation/videos[YouTube upload discovery], https://developers.google.com/youtube/v3/docs/playlistItems/list[playlistItems.list], https://developers.google.com/youtube/v3/docs/videos/list[videos.list], and https://developers.google.com/youtube/v3/docs/videos[video fields].
+
+== Failures, freshness, and retention
+
+Use finite request timeouts and at most three total attempts for a timeout, HTTP 429, or HTTP 5xx response, with exponential backoff and jitter. Honor `Retry-After` when supplied; if it extends past the next scheduled run, stop the current run. On quota exhaustion, invalid credentials, invalid configuration, or other non-transient errors, stop the run and report the reason without immediate retries. Resume on the next scheduled run after the cause is resolved.
+
+A request failure does not change a video's counts, availability, `last_checked_at`, or `last_synced_at`. A successful lookup advances `last_checked_at`; only a returned eligible video advances `last_synced_at`. This keeps unavailable lookups from extending the lifetime of old API data.
+
+Delete YouTube records whose `last_synced_at` is 30 days old or older. Run cleanup independently of YouTube requests, at startup and on an hourly maintenance schedule, including when monitoring configuration is missing. Read queries also exclude expired records, so an outage cannot cause old data to be served after restart. Cleanup never deletes local media, drafts, or rendered outputs. Historical statistics and raw-response archives are outside the initial scope. The deployed backup policy must also respect this retention period for YouTube API data.
+
+Display the synchronization timestamp with the counts and label unavailable records accordingly. Record run start/end, discovered and refreshed counts, unavailable counts, expired-record counts, and sanitized failure reasons in operational logs; do not log API keys or response payloads.
+
+This refresh/delete rule follows the https://developers.google.com/youtube/terms/developer-policies[YouTube API Services Developer Policies] for stored non-authorized API data.
+
+== Portal interface
+
+[cols="1,2",options="header"]
+|Request |Behavior
+|`GET /api/youtube/videos?page=0&size=25` |Returns `items`, `page`, `size`, and `total`; zero-based pages, size 1–100. Order by publication time descending, then internal ID ascending. Null publication times sort last. Include available and unexpired unavailable records for the configured channel.
+|`GET /api/youtube/videos/{id}` |Returns a stored, unexpired video for the configured channel by internal UUID; returns 404 if absent or expired.
+|===
+
+Both endpoints expose camelCase versions of the ERD fields plus a derived `watchUrl`. UUIDs and timestamps are strings, timestamps use ISO 8601 UTC, and counts are decimal strings or null to preserve 64-bit precision in the React client. `durationSeconds` is a number or null. Invalid UUIDs or pagination parameters return 400. Missing monitoring configuration returns 503 with a configuration error; a configured channel with no imported videos returns an empty list. These endpoints are intended for the Creator Portal under the application's eventual access-control mechanism.
+
+An optional `renderedOutputId` identifies existing local lineage; a null reference is normal. Reads never invoke synchronization or expose the API key. A YouTube outage does not prevent reading unexpired stored records.
+
+== Acceptance scenarios for future implementation
+
+* Import a channel with multiple uploads-playlist pages; verify video IDs, metadata mappings, all public formats, and exclusion of nonpublic uploads.
+* Repeat a sync and verify one record per YouTube video ID, stable internal IDs, and preserved explicit output associations.
+* Discover a new upload while refreshing an older upload's changed title and counts, including a decrease and absent counts becoming null.
+* Import videos without local renders; verify that multiple uploads can reference one render and deleting a render clears only the association.
+* Omit a stored video from a successful batch: mark it unavailable without zeroing counts or advancing `last_synced_at`; restore availability if it returns later.
+* Fail discovery midway, exhaust quota, or encounter network errors: preserve previously stored values, bound retries, and recover without duplicates on the next run.
+* Trigger overlapping runs and verify only one proceeds; verify unrelated API reads remain usable during synchronization.
+* Expire records at 30 days despite unavailable lookups or missing credentials; confirm reads exclude them and local lineage survives cleanup.
+* Verify deterministic list pagination, detail lookup, timestamp display, null fields, and exact counts above JavaScript's safe integer range.

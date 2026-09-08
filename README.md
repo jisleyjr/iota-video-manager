@@ -1,6 +1,6 @@
 # IOTA Video Manager
 
-Iota Video Manager is a self-hosted system for turning footage into short/long videos. It is designed for a library of snowmobiling, off-roading, and snowboarding videos and photos. It will also monitor videos that are uploaded to YouTube to change the stats.
+Iota Video Manager is a self-hosted system for turning footage into short/long videos. It is designed for a library of snowmobiling, off-roading, and snowboarding videos and photos. It will also monitor public YouTube uploads and display their current statistics. This repository currently contains architecture documentation; application code is not yet implemented.
 
 ## What it will do
 
@@ -17,11 +17,15 @@ Iota Video Manager is a self-hosted system for turning footage into short/long v
 
 ### Monitor Videos
 
-1. Uploaded videos need to monitored for stats on views.
-2. User and see a list of the videos and how they are doing.
+1. Discover one configured YouTube channel's public uploads, including videos created outside Iota.
+2. Refresh video metadata and current view, like, and comment counts every six hours by default.
+3. Show uploaded videos, their availability, and when their statistics were last refreshed.
+4. Allow the data model to connect a YouTube upload to a local rendered output without requiring that connection.
+
+See the [YouTube monitoring API design](docs/pages/api/youtube-monitoring.adoc) and [catalog ERD](docs/pages/diagrams/data/erd.adoc).
 
 ## Initial operating model
 
 The system will run on an Ubuntu server with two 12 GB GPUs. GPU work will include media analysis, creative-draft generation, and final video rendering. The first release will use manual uploading: after reviewing a finished video, the creator downloads it and uploads it to YouTube Shorts or Instagram Reels.
 
-Future releases may integrate directly with YouTube and Instagram for publishing and scheduling.
+The Kotlin Application API will use a server-side API key for read-only monitoring of public YouTube uploads. OAuth, private-video access, historical statistics, and YouTube Analytics are deferred. Future releases may integrate directly with YouTube and Instagram for publishing and scheduling.

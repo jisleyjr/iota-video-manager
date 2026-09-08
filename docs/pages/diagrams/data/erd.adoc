@@ -1,6 +1,6 @@
-= Media and Output Lineage
+= Media, Output Lineage, and YouTube Videos
 
-The Media Catalog is the system of record for processed-media metadata, draft composition, render history, and provenance. Binary originals, previews, final MP4 files, and thumbnails remain in Media Object Storage; catalog records retain their storage references.
+The Media Catalog is the system of record for processed-media metadata, draft composition, render history, provenance, and synchronized YouTube video metadata and current statistics. Binary originals, previews, final MP4 files, and thumbnails remain in Media Object Storage; catalog records retain their storage references.
 
 [mermaid]
 ----
@@ -11,6 +11,7 @@ erDiagram
     DRAFT ||--|{ DRAFT_VERSION : versions
     DRAFT_VERSION ||--|{ DRAFT_ITEM : orders
     DRAFT_VERSION ||--o{ RENDERED_OUTPUT : produces
+    RENDERED_OUTPUT o|--o{ YOUTUBE_VIDEO : associated_with
 
     MEDIA_ASSET {
         uuid id PK
@@ -56,10 +57,42 @@ erDiagram
         string render_status
         datetime created_at
     }
+    YOUTUBE_VIDEO {
+        uuid id PK
+        string youtube_video_id UK
+        string youtube_channel_id
+        uuid rendered_output_id FK "nullable"
+        string title
+        string description
+        string thumbnail_url
+        datetime published_at
+        decimal duration_seconds
+        bigint view_count
+        bigint like_count
+        bigint comment_count
+        string availability
+        datetime created_at
+        datetime last_checked_at
+        datetime last_synced_at
+    }
 ----
 
 `DRAFT_ITEM.scene_id` is optional so a draft can directly reference a photo, audio asset, or manually selected source range. The item preserves ordering, source time ranges, cropping, speed, captions, and other transformations needed to reproduce or explain a render. A rendered output always references the immutable, approved `DRAFT_VERSION` used to create it; later edits create another version rather than changing its history.
 
+== YouTube video records
+
+`YOUTUBE_VIDEO` represents an external upload, distinct from a local rendered file. `youtube_video_id` is unique and is the synchronization upsert key. `youtube_channel_id` identifies the configured source channel; no channel or credential table is required for the initial single-channel configuration.
+
+`rendered_output_id` is nullable: each YouTube video references zero or one rendered output, and a rendered output may have zero or many associated uploads. Imports leave this reference empty; any association must be explicit, never inferred from matching titles. Deleting a rendered output sets this reference to null. Deleting an expired YouTube record does not delete local outputs or their lineage. An association-editing workflow is deferred.
+
+Metadata comes from the video resource, including its publication time rather than the playlist item's insertion time. `duration_seconds` preserves fractional seconds when converting YouTube's ISO 8601 duration. Counts are nullable nonnegative 64-bit integers; absent counts mean unknown, not zero. Optional metadata remains null when absent. All timestamps represent UTC instants.
+
+`availability` is `available` or `unavailable`. `created_at` is the initial import time; `last_checked_at` records the latest successful lookup that either returned or omitted the video; `last_synced_at` records the latest successful metadata/statistics replacement. A failed request advances neither lookup timestamp. An unavailable lookup advances only `last_checked_at`, so old metadata cannot evade expiry. Records are first created only for returned public videos.
+
+Only the latest statistics are stored. See xref:api/youtube-monitoring.adoc[YouTube monitoring API] for synchronization, error handling, retention, and the read interface.
+
 == Creator experience
 
 The Creator Portal provides a *Finished Videos* list and output-detail view. For each render, the detail view shows status, creation time, draft version, MP4 and thumbnail links, and the ordered source assets with their selected time ranges and transformations. From a source asset, the creator can also view every draft and finished video that reused it.
+
+A separate *YouTube Videos* list shows synchronized uploads with current statistics, availability, and the last successful refresh time. Uploads can appear without a local render; an existing output association allows navigation to its source lineage.
