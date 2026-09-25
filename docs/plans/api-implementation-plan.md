@@ -4,7 +4,7 @@
 
 Create a runnable Spring Boot API in `api/`, with MySQL persistence, Liquibase migrations, ShedLock jobs, and the documented YouTube monitoring feature.
 
-Use the CRM reference project’s Gradle Kotlin DSL, version catalog, Spring configuration, and migration organization. Keep a simple Controller → Service → Repository structure with public dependencies only.
+Use the Gradle Kotlin DSL with a version catalog, standard Spring configuration, and Liquibase migration organization. Keep a simple Controller → Service → Repository structure with public dependencies only.
 
 Confirmed decisions: secrets in `.env`, localhost access, and YouTube/ShedLock tables only. Media processing, catalog workflows, authentication, and rendered-output associations remain deferred.
 
