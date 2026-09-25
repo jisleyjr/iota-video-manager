@@ -8,7 +8,7 @@ model {
     iotaVideos = softwareSystem "Iota Video Manager" "Self-hosted system that catalogs adventure media and creates creator-approved short-form video drafts and monitors public YouTube uploads." "iota" {
         creatorPortal = container "Creator Portal" "Browser application for uploads, search, idea review, draft approval, final-video download, source-lineage inspection, and YouTube video monitoring." "Web application" "iota"
 
-        applicationApi = container "Application API" "Serves the Creator Portal and manages media, catalog, idea, draft, and YouTube monitoring workflows." "Kotlin / REST API" "iota" {
+        applicationApi = container "Application API" "Serves the Creator Portal and manages media, catalog, idea, draft, and YouTube monitoring workflows." "Kotlin / Spring Boot REST API" "iota" {
             mediaManagement = component "Media Management" "Registers media and authorizes uploads and downloads." "" "iota"
             catalogSearch = component "Catalog Search" "Searches action scenes, photos, tags, and related adventures." "" "iota"
             ideaWorkflow = component "Idea and Draft Workflow" "Creates, retrieves, approves, rejects, and revises short-form video drafts." "" "iota"
@@ -47,7 +47,7 @@ model {
         videoRenderService = container "Video Render Service" "Creates approved 9:16 MP4 videos, captions, thumbnails, and final publishing metadata." "GPU worker service" "gpu"
 
         jobQueue = container "Job Queue" "Buffers background analysis, creative-generation, and video-rendering work." "Message queue" "Queue"
-        mediaCatalog = container "Media Catalog" "Stores asset metadata, scene timestamps, tags, projects, versioned drafts, approval state, outputs, output-to-source lineage, and YouTube video metadata and current statistics." "PostgreSQL" "Database"
+        mediaCatalog = container "Media Catalog" "Stores asset metadata, scene timestamps, tags, projects, versioned drafts, approval state, outputs, output-to-source lineage, and YouTube video metadata and current statistics." "MySQL" "Database"
         semanticIndex = container "Semantic Search Index" "Stores embeddings for matching and semantically searching videos, scenes, and photos." "Vector search database" "Database"
         mediaStorage = container "Media Object Storage" "Stores original media, analysis derivatives, previews, rendered videos, and thumbnails." "S3-compatible object storage" "Database"
 

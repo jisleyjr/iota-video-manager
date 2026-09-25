@@ -1,5 +1,7 @@
 = YouTube Shorts and Reels System — Sequence Diagrams
 
+NOTE: This document describes the planned product architecture. The implemented API currently provides only the Spring Boot/MySQL foundation and health endpoints.
+
 These sequences describe the initial system behavior:
 
 * Media arrives through watched folders and browser uploads.

@@ -1,5 +1,7 @@
 = Components
 
+NOTE: This document describes the planned product architecture. The implemented API currently provides only the Spring Boot/MySQL foundation and health endpoints.
+
 == Application API
 
 The API includes stored YouTube video queries, a scheduled synchronization task, and a server-side YouTube API client. See xref:api/youtube-monitoring.adoc[YouTube monitoring API] for configuration, synchronization, and read endpoints. GPU processing remains a separate workflow.

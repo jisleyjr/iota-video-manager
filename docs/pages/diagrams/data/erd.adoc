@@ -1,5 +1,7 @@
 = Media, Output Lineage, and YouTube Videos
 
+NOTE: This document describes the planned product architecture. The implemented API currently provides only the Spring Boot/MySQL foundation and health endpoints.
+
 The Media Catalog is the system of record for processed-media metadata, draft composition, render history, provenance, and synchronized YouTube video metadata and current statistics. Binary originals, previews, final MP4 files, and thumbnails remain in Media Object Storage; catalog records retain their storage references.
 
 [mermaid]

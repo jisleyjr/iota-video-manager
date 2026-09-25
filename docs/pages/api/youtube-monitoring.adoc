@@ -1,10 +1,12 @@
 = YouTube Monitoring API
 
+NOTE: This feature is planned. The implemented API foundation provides MySQL connectivity, Liquibase initialization, and health endpoints; YouTube endpoints and ShedLock jobs are not implemented yet.
+
 The Application API will discover one configured channel's public YouTube uploads and store their metadata and current view, like, and comment counts in the Media Catalog. All public video formats are included, including uploads created outside Iota.
 
 == Components and configuration
 
-The Kotlin Application API owns YouTube Video Queries, YouTube Synchronization, and the YouTube API Client. The synchronization task runs within the API, separate from the GPU processing workflow, and writes to PostgreSQL. Portal requests read stored data without waiting for YouTube.
+The Kotlin Application API owns YouTube Video Queries, YouTube Synchronization, and the YouTube API Client. The synchronization task runs within the API, separate from the GPU processing workflow, and writes to MySQL. Portal requests read stored data without waiting for YouTube.
 
 [cols="1,2",options="header"]
 |===
@@ -14,7 +16,7 @@ The Kotlin Application API owns YouTube Video Queries, YouTube Synchronization, 
 |`YOUTUBE_SYNC_INTERVAL` |Positive duration, default `PT6H` (six hours).
 |===
 
-Missing configuration disables monitoring and reports a configuration error without blocking unrelated API workflows. The first configured startup schedules an initial sync; subsequent runs follow the interval. Permit only one active synchronization run, using a PostgreSQL advisory lock shared across API instances. Skip a scheduled run if the lock is held, and release the lock on completion or failure.
+Missing configuration disables monitoring and reports a configuration error without blocking unrelated API workflows. The first configured startup schedules an initial sync; subsequent runs follow the interval. Permit only one active synchronization run, using a ShedLock JDBC lock backed by MySQL shared across API instances. Skip a scheduled run if the lock is held, and release the lock on completion or failure.
 
 OAuth, private-video access, manual video registration, direct publishing, historical observations, YouTube Analytics, and output-association editing are deferred. Uploading to YouTube and Instagram remains manual.
 

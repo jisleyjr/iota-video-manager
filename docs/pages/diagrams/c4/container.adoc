@@ -1,5 +1,7 @@
 = Container
 
+NOTE: This document describes the planned product architecture. The implemented API currently provides only the Spring Boot/MySQL foundation and health endpoints.
+
 [structurizr]
 ....
 workspace "Iota Video Manager" "Container view" {
