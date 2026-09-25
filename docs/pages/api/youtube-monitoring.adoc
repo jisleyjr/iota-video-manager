@@ -49,6 +49,7 @@ This refresh/delete rule follows the https://developers.google.com/youtube/terms
 == Portal interface
 
 [cols="1,2",options="header"]
+|===
 |Request |Behavior
 |`GET /api/youtube/videos?page=0&size=25` |Returns `items`, `page`, `size`, and `total`; zero-based pages, size 1–100. Order by publication time descending, then internal ID ascending. Null publication times sort last. Include available and unexpired unavailable records for the configured channel.
 |`GET /api/youtube/videos/{id}` |Returns a stored, unexpired video for the configured channel by internal UUID; returns 404 if absent or expired.
