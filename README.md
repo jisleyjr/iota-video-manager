@@ -6,7 +6,7 @@ Iota Video Manager is a self-hosted system for turning footage into short/long v
 
 Copy `.env.example` to `.env`, set both database passwords, then run `docker compose up --build --wait` from the repository root. The API is available at `http://localhost:8080/actuator/health/readiness`, with MySQL on localhost port 3306.
 
-See [API setup, development, and tests](api/README.md) and the [implementation roadmap](docs/plans/api-implementation-plan.md).
+See [API setup, development, and tests](api/README.md) and the [implementation roadmap](docs/plans/00-api-implementation-roadmap.md).
 
 ## What it will do
 

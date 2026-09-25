@@ -2,7 +2,7 @@
 
 The API foundation is a standalone Kotlin/Spring Boot project with MySQL connectivity, Liquibase initialization, and health endpoints. Catalog, draft, output-lineage, and YouTube monitoring features remain planned.
 
-See the [foundation plan](../docs/plans/api-foundation-plan.md), [YouTube follow-up plan](../docs/plans/api-youtube-monitoring-plan.md), and [YouTube monitoring design](../docs/pages/api/youtube-monitoring.adoc).
+See the [foundation plan](../docs/plans/01-api-foundation-plan.md), [YouTube follow-up plan](../docs/plans/02-api-youtube-monitoring-plan.md), and [YouTube monitoring design](../docs/pages/api/youtube-monitoring.adoc).
 
 ## Prerequisites
 
