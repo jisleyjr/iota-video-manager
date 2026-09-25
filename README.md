@@ -1,6 +1,12 @@
 # IOTA Video Manager
 
-Iota Video Manager is a self-hosted system for turning footage into short/long videos. It is designed for a library of snowmobiling, off-roading, and snowboarding videos and photos. It will also monitor public YouTube uploads and display their current statistics. This repository currently contains architecture documentation; application code is not yet implemented.
+Iota Video Manager is a self-hosted system for turning footage into short/long videos. It is designed for a library of snowmobiling, off-roading, and snowboarding videos and photos. It will also monitor public YouTube uploads and display their current statistics. The Kotlin/Spring Boot API foundation is implemented with MySQL, Liquibase, health checks, and Docker Compose. The product workflows below remain planned.
+
+## Run the API foundation
+
+Copy `.env.example` to `.env`, set both database passwords, then run `docker compose up --build --wait` from the repository root. The API is available at `http://localhost:8080/actuator/health/readiness`, with MySQL on localhost port 3306.
+
+See [API setup, development, and tests](api/README.md) and the [implementation roadmap](docs/plans/api-implementation-plan.md).
 
 ## What it will do
 

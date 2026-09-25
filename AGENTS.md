@@ -2,10 +2,13 @@
 
 ## Project Structure & Module Organization
 
-This repository currently contains planning and architecture documentation for a self-hosted video manager; application code, tests, and runtime assets have not been added.
+This repository contains a runnable Kotlin/Spring Boot API foundation and planning/architecture documentation for a self-hosted video manager. Business workflows remain planned.
 
 - `README.md` describes product goals and the initial operating model.
-- `api/` and `app/` contain placeholder READMEs. Their descriptions appear reversed: `api/README.md` describes React/Yarn, while `app/README.md` describes Kotlin/Gradle. Resolve this mismatch before scaffolding either module.
+- `api/` is a standalone Kotlin/Gradle Spring Boot project with source, MySQL integration tests, a committed wrapper, and a version catalog. Its README documents setup, build, run, and test commands.
+- `app/` contains the planned React/Yarn Creator Portal README; no frontend is scaffolded.
+- `api/Dockerfile` packages the API using `api/` as its build context; root `docker-compose.yml` starts the API and MySQL 8.4. Local passwords belong in ignored `.env` files.
+- `docs/plans/` contains the foundation plan and the deferred YouTube monitoring plan.
 - `processor/` is the planned service for processing and creating videos. It currently contains only `README.md`; its implementation language, dependencies, and runtime commands are not yet defined.
 - `docs/pages/` contains AsciiDoc pages, including C4, data, and sequence diagrams.
 - `docs/partials/diagrams/c4/` holds shared Structurizr models and styles.
@@ -13,7 +16,9 @@ This repository currently contains planning and architecture documentation for a
 
 ## Build, Test, and Development Commands
 
-No build, local-server, test, or documentation-rendering command is configured. There is no package manifest, Gradle wrapper, or Antora playbook checked in.
+From `api/`, use `make help` to list commands, `make run` to format and start the local-profile API, `make check` for ktlint plus JUnit/MySQL Testcontainers tests, and `make build` to package the executable JAR. `make format`, `make clean`, and `make dependencies` cover formatting, build cleanup, and dependency listing. Tests require a running Docker daemon.
+
+From the root, configure `.env` and use `docker compose up --build --wait` to start the API and database, or `docker compose up -d --wait mysql` for host API development. No frontend or documentation-rendering command is configured; no Antora playbook is checked in.
 
 Useful checks from the repository root:
 
@@ -27,11 +32,11 @@ When introducing executable modules, document their setup, build, run, and test 
 
 Use Markdown for READMEs and AsciiDoc for documentation pages. Follow existing heading and diagram-block conventions. Use descriptive, lowercase, hyphenated page names, such as `system-context.adoc`. Preserve four-space indentation in Structurizr DSL and reuse shared models and styles through includes. Update navigation when adding or renaming pages.
 
-No formatter, linter, or application-language style configuration is present.
+Use four-space indentation in Kotlin and constructor injection. Keep dependencies/plugins in the Gradle version catalog. KtLint is configured through the Gradle plugin and `api/.editorconfig`; `formatKotlin` delegates to `ktlintFormat`.
 
 ## Testing Guidelines
 
-No automated testing framework, test naming convention, or coverage threshold exists yet. For documentation changes, verify relative includes, cross-references, and consistency between diagrams and product requirements. Existing navigation references `media-lineage.adoc`, but the tracked data page is `erd.adoc`; account for this mismatch when validating links. Add tests and document their conventions when introducing application behavior.
+API tests use JUnit and MySQL Testcontainers under `api/src/test/kotlin`, with `*Test` class names and descriptive Kotlin test names. No coverage threshold is configured. Test actual MySQL integration rather than substituting an in-memory database. For documentation changes, verify relative includes, cross-references, and consistency between diagrams and product requirements; the data page is `erd.adoc`.
 
 ## Commit & Pull Request Guidelines
 

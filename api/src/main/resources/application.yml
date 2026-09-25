@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: iota-video-manager-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/${MYSQL_DATABASE:iota_video_manager}?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true}
+    username: ${MYSQL_USER:iota}
+    password: ${MYSQL_PASSWORD}
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 3000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db

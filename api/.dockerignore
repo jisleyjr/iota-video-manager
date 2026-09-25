@@ -1,0 +1,13 @@
+**
+!Dockerfile
+!gradlew
+!gradlew.bat
+!build.gradle.kts
+!settings.gradle.kts
+!gradle/
+!gradle/**
+!src/
+!src/main/
+!src/main/**
+**/.env
+**/.env.*
