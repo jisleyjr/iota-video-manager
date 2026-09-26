@@ -1,6 +1,0 @@
-server:
-  address: 127.0.0.1
-
-spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:3306}/${MYSQL_DATABASE:iota_video_manager}?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true}
