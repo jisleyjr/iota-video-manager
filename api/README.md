@@ -12,6 +12,22 @@ See the [foundation plan](../docs/plans/01-api-foundation-plan.md), [YouTube fol
 
 The build uses Kotlin 2.3.20 and Spring Boot 4.1.1. Versions and dependency aliases live in `gradle/libs.versions.toml`. The `Makefile` uses ktlint to format Kotlin source, tests, and Gradle scripts.
 
+## Local Development
+
+The build requires JDK 21; Gradle resolves it through the `jvmToolchain(21)` setting in `build.gradle.kts`. On Ubuntu:
+
+```sh
+sudo apt update
+sudo apt install openjdk-21-jdk
+java -version
+```
+
+If a Gradle daemon was started before the JDK was installed, it will not see the new JDK. Stop the daemon from `api/` so the next build starts a fresh one:
+
+```sh
+./gradlew --stop
+```
+
 ## Configuration
 
 From the repository root:
