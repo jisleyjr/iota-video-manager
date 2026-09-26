@@ -1,4 +1,4 @@
-.PHONY: help clean build rebuild run check dependencies format
+.PHONY: help clean build rebuild run check dependencies format db/start db/stop
 
 help: ## print this help message
 	@grep -E '^[/\.a-z%A-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[33m%-20s\033[0m %s\n", $$1, $$2}'
@@ -23,3 +23,9 @@ dependencies: ## install and list dependencies used
 
 format: ## automatically format the code based upon [ktlint](https://ktlint.github.io/) rules
 	./gradlew formatKotlin
+
+db/start: ## start the MySQL database from the root docker-compose.yml
+	docker compose -f ../docker-compose.yml up -d --wait mysql
+
+db/stop: ## stop the MySQL database container from the root docker-compose.yml
+	docker compose -f ../docker-compose.yml stop mysql
