@@ -4,6 +4,8 @@
 
 Planned follow-up to [the API foundation](01-api-foundation-plan.md). Do not implement this feature as part of the foundation milestone.
 
+Execution is tracked as ordered sub-phases in [02-youtube-monitoring](02-youtube-monitoring/README.md). Schema and stored reads are one phase each. YouTube HTTP is split into discovery, video lookup, and retry policy before synchronization, ShedLock, and retention. This file remains the requirement source.
+
 Implement the [YouTube monitoring design](../pages/api/youtube-monitoring.adoc) using the foundation's Kotlin/Spring Boot project, MySQL 8.4, Liquibase, version catalog, and Docker configuration. Keep Controller → Service → Repository boundaries, constructor injection, dedicated DTOs, and service-owned transactions. Add `controller`, `service`, `repository`, `entity`, `dto`, `client`, `job`, and `config` packages as needed.
 
 ## Database changes
